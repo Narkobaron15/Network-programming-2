@@ -29,14 +29,14 @@
             <Label Grid.Row="1" Grid.Column="0" Content="Subject: "/>
             <TextBox Grid.Row="1" Grid.Column="1" Name="SubjectTextBox"/>
 
-            <Label Grid.Row="1" Grid.Column="0" Content="Priority: "/>
-            <ComboBox Name="PriorityComboBox" Grid.Row="1" Grid.Column="1"/>
+            <Label Grid.Row="2" Grid.Column="0" Content="Priority: "/>
+            <ComboBox Name="PriorityComboBox" Grid.Row="2" Grid.Column="1"/>
 
             <Label Grid.Row="3" Grid.Column="0" Content="Body: "/>
             <TextBox Grid.Row="3" Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap"
                      Name="BodyTextBox"/>
 
-            <!-- An attachment should have the template -->
+            <!-- An attachment should have the template with delete button -->
             
             <Label Grid.Row="4" Grid.Column="0" Content="Attachments: "/>
             <StackPanel VerticalAlignment="Center" Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
