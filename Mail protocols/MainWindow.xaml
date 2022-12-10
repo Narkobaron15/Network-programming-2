@@ -1,0 +1,52 @@
+﻿<Window x:Class="Mail_protocols.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Mail_protocols"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+
+    <Grid>
+        <Grid Style="{StaticResource MarginGrid}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="To: "/>
+            <TextBox Grid.Row="0" Grid.Column="1" Name="ToTextBox"/>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="Subject: "/>
+            <TextBox Grid.Row="1" Grid.Column="1" Name="SubjectTextBox"/>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="Priority: "/>
+            <ComboBox Name="PriorityComboBox" Grid.Row="1" Grid.Column="1"/>
+
+            <Label Grid.Row="3" Grid.Column="0" Content="Body: "/>
+            <TextBox Grid.Row="3" Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap"
+                     Name="BodyTextBox"/>
+
+            <!-- An attachment should have the template -->
+            
+            <Label Grid.Row="4" Grid.Column="0" Content="Attachments: "/>
+            <StackPanel VerticalAlignment="Center" Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                <!--<StackPanel Name="AttachmentsPanel" Margin="10, 0" Orientation="Horizontal"/>-->
+                <Button Name="AddAttachmentBtn" Content="Add..." HorizontalAlignment="Left" Click="AddAttachmentBtn_Click"/>
+            </StackPanel>
+
+            <Button Name="SendBtn" Content="Send" Grid.Row="6" Grid.Column="1"
+                    HorizontalAlignment="Right" Click="SendBtn_Click"/>
+        </Grid>
+    </Grid>
+    
+</Window>
