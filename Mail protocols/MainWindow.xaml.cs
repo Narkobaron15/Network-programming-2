@@ -13,6 +13,7 @@ namespace Mail_protocols
     /// </summary>
     public partial class MainWindow : Window
     {
+
         private readonly List<Attachment> AttachmentsList;
         private readonly OpenFileDialog OpenFileDialog;
 
@@ -22,8 +23,9 @@ namespace Mail_protocols
         public MainWindow(SmtpClient client, string mailAddress)
         {
             InitializeComponent();
+
             AttachmentsList = new();
-            OpenFileDialog = new()
+            Dialog = new()
             {
                 Filter = "All files (*.*)|*.*",
                 FilterIndex = 0,
@@ -36,11 +38,11 @@ namespace Mail_protocols
 
         private void AddAttachmentBtn_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog.FileName = string.Empty;
+            Dialog.FileName = string.Empty;
 
-            if (OpenFileDialog.ShowDialog() == true)
+            if (Dialog.ShowDialog() == true)
             {
-                foreach (var path in OpenFileDialog.FileNames)
+                foreach (var path in Dialog.FileNames)
                     AttachmentsList.Add(new Attachment(path));
             }
         }
@@ -51,7 +53,7 @@ namespace Mail_protocols
 
             MailMessage msg = new(MailAddress, ToTextBox.Text)
             {
-                Priority = MailPriority.Normal,
+                Priority = _MailPriority,
                 Subject = SubjectTextBox.Text,
                 Body = $"<h1>Hello from C#</h1><p>{BodyTextBox.Text}</p>",
                 IsBodyHtml = true,
