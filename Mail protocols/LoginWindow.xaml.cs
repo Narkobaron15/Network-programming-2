@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,6 +24,21 @@ namespace Mail_protocols
         public LoginWindow()
         {
             InitializeComponent();
+        }
+
+        private void Connect_Click(object sender, RoutedEventArgs e)
+        {
+            // try - catch
+
+            SmtpClient smtpClient = new(HostTextBox.Text, int.Parse(PortTextBox.Text))
+            {
+                Credentials = new NetworkCredential(LoginTextBox.Text, PasswordTextBox.Text),
+                EnableSsl = true
+            };
+
+            MainWindow mainWindow = new(smtpClient, LoginTextBox.Text);
+            mainWindow.Show();
+            this.Close();
         }
     }
 }

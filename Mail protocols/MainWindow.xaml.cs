@@ -13,15 +13,14 @@ namespace Mail_protocols
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string MailAddress = "oleksii120@gmail.com",
-                             pwd = "jylrwfhbqdcqewfi";
-
-        private MailPriority _MailPriority => (MailPriority)PriorityComboBox.SelectedItem;
 
         private readonly List<Attachment> AttachmentsList;
-        private readonly OpenFileDialog Dialog;
+        private readonly OpenFileDialog OpenFileDialog;
 
-        public MainWindow()
+        private readonly SmtpClient smtpClient;
+        private readonly string MailAddress;
+
+        public MainWindow(SmtpClient client, string mailAddress)
         {
             InitializeComponent();
 
@@ -33,8 +32,8 @@ namespace Mail_protocols
                 Multiselect = true,
             };
 
-            PriorityComboBox.ItemsSource = Enum.GetValues<MailPriority>();
-            PriorityComboBox.SelectedIndex = 1;
+            smtpClient = client;
+            MailAddress = mailAddress;
         }
 
         private void AddAttachmentBtn_Click(object sender, RoutedEventArgs e)
@@ -60,12 +59,6 @@ namespace Mail_protocols
                 IsBodyHtml = true,
             };
             AttachmentsList.ForEach(x => msg.Attachments.Add(x));
-
-            SmtpClient smtpClient = new("smtp.gmail.com", 587)
-            {
-                Credentials = new NetworkCredential(MailAddress, pwd),
-                EnableSsl = true
-            };
 
             Task.Factory.StartNew(() =>
             {
