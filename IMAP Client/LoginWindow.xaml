@@ -29,6 +29,8 @@
             <Label Grid.Row="1" Grid.Column="0" Content="Port: "/>
             <TextBox Name="PortTextBox" Grid.Row="1" Grid.Column="1" MinWidth="250" Text="587"/>
 
+            <!-- REMINDER: REWORK SECURITY OPTIONS CHANGER -->
+
             <Label Grid.Row="2" Grid.Column="0" Content="SSL: "/>
             <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="10"
                       Name="SSLCheckBox" IsChecked="True"/>
