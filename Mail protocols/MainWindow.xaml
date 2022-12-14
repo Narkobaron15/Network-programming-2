@@ -35,11 +35,13 @@
             <Label Grid.Row="3" Grid.Column="0" Content="Body: "/>
             <TextBox Grid.Row="3" Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap"
                      Name="BodyTextBox"/>
-
-            <!-- An attachment should have the template with delete button -->
             
             <Label Grid.Row="4" Grid.Column="0" Content="Attachments: "/>
             <StackPanel VerticalAlignment="Center" Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                <!-- 
+                     Place for the stackpanel of attachments
+                     An attachment should have the template with delete button 
+                -->
                 <!--<StackPanel Name="AttachmentsPanel" Margin="10, 0" Orientation="Horizontal"/>-->
                 <Button Name="AddAttachmentBtn" Content="Add..." HorizontalAlignment="Left" Click="AddAttachmentBtn_Click"/>
             </StackPanel>

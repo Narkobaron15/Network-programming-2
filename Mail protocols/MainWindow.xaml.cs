@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,7 +12,11 @@ namespace Mail_protocols
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MailPriority _MailPriority => (MailPriority)PriorityComboBox.SelectedItem;
+        private MailPriority mailPriority
+        {
+            get => (MailPriority)PriorityComboBox.SelectedItem;
+            set => PriorityComboBox.SelectedItem = value;
+        }
 
         private readonly List<Attachment> AttachmentsList;
         private readonly OpenFileDialog Dialog;
@@ -37,7 +40,7 @@ namespace Mail_protocols
             MailAddress = mailAddress;
 
             PriorityComboBox.ItemsSource = Enum.GetValues<MailPriority>();
-            PriorityComboBox.SelectedIndex = 0;
+            mailPriority = MailPriority.Normal;
         }
 
         private void AddAttachmentBtn_Click(object sender, RoutedEventArgs e)
@@ -57,9 +60,10 @@ namespace Mail_protocols
 
             MailMessage msg = new(MailAddress, ToTextBox.Text)
             {
-                Priority = _MailPriority,
+                Priority = mailPriority,
                 Subject = SubjectTextBox.Text,
-                Body = $"<h1>Hello from C#</h1><p>{BodyTextBox.Text}</p>",
+                //Body = $"<h1>Hello from C#</h1><p>{BodyTextBox.Text}</p>",
+                Body = BodyTextBox.Text,
                 IsBodyHtml = true,
             };
             AttachmentsList.ForEach(x => msg.Attachments.Add(x));
@@ -69,16 +73,22 @@ namespace Mail_protocols
                 try
                 {
                     smtpClient.Send(msg);
-                    MessageBox.Show("The message was sent successfully!");
-
+                    MessageBox.Show("The message was sent successfully!", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, ex.GetType().FullName);
+                    MessageBox.Show("Something wrong happened!\n\n" + ex.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 finally
                 {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        ToTextBox.Text = SubjectTextBox.Text = BodyTextBox.Text = string.Empty;
+                        mailPriority = MailPriority.Normal;
+                    });
+
                     AttachmentsList.Clear();
+                    msg.Dispose();
                 }
             });
         }
