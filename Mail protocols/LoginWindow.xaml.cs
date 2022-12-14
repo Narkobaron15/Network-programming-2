@@ -33,7 +33,7 @@ namespace Mail_protocols
             SmtpClient smtpClient = new(HostTextBox.Text, int.Parse(PortTextBox.Text))
             {
                 Credentials = new NetworkCredential(LoginTextBox.Text, PasswordTextBox.Text),
-                EnableSsl = true
+                EnableSsl = SSLCheckBox.IsEnabled,
             };
 
             MainWindow mainWindow = new(smtpClient, LoginTextBox.Text);

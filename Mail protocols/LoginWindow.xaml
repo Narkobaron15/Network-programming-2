@@ -24,10 +24,10 @@
 
             <Label Grid.Row="0" Grid.Column="0" Content="Host: "/>
             <TextBox Name="HostTextBox" Grid.Row="0" Grid.Column="1" MinWidth="250"
-                     Text="smtp.google.com"/>
+                     Text="smtp.gmail.com"/>
 
             <Label Grid.Row="1" Grid.Column="0" Content="Port: "/>
-            <TextBox Name="PortTextBox" Grid.Row="1" Grid.Column="1" MinWidth="250" Text="465"/>
+            <TextBox Name="PortTextBox" Grid.Row="1" Grid.Column="1" MinWidth="250" Text="587"/>
 
             <Label Grid.Row="2" Grid.Column="0" Content="SSL: "/>
             <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="10"

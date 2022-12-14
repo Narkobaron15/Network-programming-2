@@ -13,9 +13,6 @@ namespace Mail_protocols
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string MailAddress = "oleksii120@gmail.com",
-                             pwd = "jylrwfhbqdcqewfi";
-
         private MailPriority _MailPriority => (MailPriority)PriorityComboBox.SelectedItem;
 
         private readonly List<Attachment> AttachmentsList;
@@ -38,6 +35,9 @@ namespace Mail_protocols
 
             smtpClient = client;
             MailAddress = mailAddress;
+
+            PriorityComboBox.ItemsSource = Enum.GetValues<MailPriority>();
+            PriorityComboBox.SelectedIndex = 0;
         }
 
         private void AddAttachmentBtn_Click(object sender, RoutedEventArgs e)
