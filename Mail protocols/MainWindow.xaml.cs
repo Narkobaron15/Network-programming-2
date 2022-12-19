@@ -5,7 +5,7 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace IMAP_Client
+namespace SMTP_Client
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -24,7 +24,7 @@ namespace IMAP_Client
         private readonly SmtpClient smtpClient;
         private readonly string MailAddress;
 
-        public MainWindow(SmtpClient client, string mailAddress)
+        public MainWindow(SmtpClient client, string mailAddress, string? To = null, string? Subject = null)
         {
             InitializeComponent();
 
@@ -38,6 +38,8 @@ namespace IMAP_Client
 
             smtpClient = client;
             MailAddress = mailAddress;
+            ToTextBox.Text = To ?? string.Empty;
+            SubjectTextBox.Text = Subject ?? string.Empty;
 
             PriorityComboBox.ItemsSource = Enum.GetValues<MailPriority>();
             mailPriority = MailPriority.Normal;

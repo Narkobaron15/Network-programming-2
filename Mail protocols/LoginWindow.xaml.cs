@@ -3,7 +3,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Windows;
 
-namespace IMAP_Client
+namespace SMTP_Client
 {
     /// <summary>
     /// Interaction logic for LoginWindow.xaml

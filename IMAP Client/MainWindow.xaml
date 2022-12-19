@@ -5,8 +5,43 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IMAP_Client"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="MainWindow" Height="450" Width="800" Closing="Window_Closing">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <ListView Grid.Column="0" Name="FoldersBox" SelectionChanged="FoldersBox_SelectionChanged" Drop="FoldersBox_Drop"/>
+        <ListBox Grid.Column="1" Name="EmailBox" MouseDoubleClick="EmailBox_MouseDoubleClick">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.5*"/>
+                            <ColumnDefinition Width="0.5*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Style="{StaticResource EmailTemplateTextBlock}" Grid.Column="0" FontWeight="Bold" Text="{Binding From}"/>
+                        <TextBlock Style="{StaticResource EmailTemplateTextBlock}" Grid.Column="1" FontWeight="Bold" Text="{Binding Date}"/>
+                        <TextBlock Style="{StaticResource EmailTemplateTextBlock}" Grid.Column="2" FontWeight="Bold" Text="{Binding Subject}"/>
+
+                        <Grid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="d"></MenuItem>
+                            </ContextMenu>
+                        </Grid.ContextMenu>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" DockPanel.Dock="Bottom">
+            <Button Name="WriteButton" Content="Write..." HorizontalAlignment="Right" Margin="20,8,20,0" Click="WriteButton_Click"/>
+        </StackPanel>
     </Grid>
 </Window>
