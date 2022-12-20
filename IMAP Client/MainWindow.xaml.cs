@@ -29,23 +29,19 @@ namespace IMAP_Client
         private MimeMessage SelectedMessage => (MimeMessage)EmailBox.SelectedItem;
 
         private IList<IMailFolder> Folders { get; }
-        private IMailFolder? _selectedfolder;
-        private IMailFolder SelectedFolder
+        private ImapFolder? _selectedfolder;
+        private ImapFolder SelectedFolder
         {
             get => _selectedfolder!;
             set
             {
-                this.Dispatcher.Invoke(() => Messages.Clear());
-                _selectedfolder?.CloseAsync(true);
-                CancelLoadingSource?.Cancel();
+                _selectedfolder?.CloseAsync();
+                this.Dispatcher.Invoke(Messages.Clear);
 
                 _selectedfolder = value;
 
-                Task.Run(async () =>
-                {
-                    await Task.Delay(1000);
-                    LoadEmails();
-                });
+                value.Open(FolderAccess.ReadWrite);
+                Task.Run(() => ExecuteSearch(SearchQuery.All));
             }
         }
 
@@ -60,6 +56,8 @@ namespace IMAP_Client
             }
         }
         private CancellationToken CancelLoadingToken => (CancelLoadingSource?.Token)!.Value;
+
+        private readonly SearchQuery[] Queries;
 
         public MainWindow(ConnectionCredentials ConnectionCredentials)
         {
@@ -76,41 +74,25 @@ namespace IMAP_Client
                                      .Where(x => (x.Attributes & FolderAttributes.NonExistent) != FolderAttributes.NonExistent)
                                      .Select(x => x.Name);
             FoldersBox.SelectedItem = Client.Inbox.Name;
-        }
 
-        private void LoadEmails()
-        {
-            lock (Client)
-            {
-                CancelLoadingSource = new();
 
-                SelectedFolder.Open(FolderAccess.ReadWrite);
-                var emails = SelectedFolder.Search(SearchQuery.All);
+            Queries = new[] 
+            { 
+                SearchQuery.All, SearchQuery.Flagged, SearchQuery.NotFlagged, 
+                SearchQuery.Deleted, SearchQuery.Answered,
+                SearchQuery.Seen, SearchQuery.NotSeen, 
+                SearchQuery.Old, SearchQuery.Recent
+            };
 
-                if (emails.Count == 0)
-                {
-                    MessageBox.Show("No emails in this folder >.<", "Information", MessageBoxButton.OK, MessageBoxImage.Information); 
-                    return;
-                }
-
-                for (int i = 1; i <= Math.Min(emails.Count, 50); i++)
-                {
-                    if (CancelLoadingToken.IsCancellationRequested)
-                    {
-                        this.Dispatcher.InvokeAsync(() => Messages.Clear());
-                        return;
-                    }
-
-                    var email = SelectedFolder.GetMessage(emails[^i]);
-                    this.Dispatcher.Invoke(() => Messages.Add(email));
-                }
-            }
+            var filternames = new[] { "All", "Flagged", "Not flagged", "Deleted", "Answered", "Seen", "Not seen", "Old", "Recent" };
+            QueriesComboBox.ItemsSource = filternames;
+            QueriesComboBox.SelectedIndex = 0;
         }
 
         private void FoldersBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string? selectedname = FoldersBox.SelectedItem.ToString();
-            SelectedFolder = Folders.Where(x => x.Name == selectedname).First();
+            SelectedFolder = (ImapFolder)Folders.Where(x => x.Name == selectedname).First();
         }
 
         private void EmailBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -127,7 +109,12 @@ namespace IMAP_Client
             // move emails between folders
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) => Directory.Delete("Temp", true);
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            CancelLoadingSource?.Cancel();
+            DirectoryInfo tmpdir = new("Temp");
+            if (tmpdir.Exists) tmpdir.Delete(true);
+        }
 
         private void WriteButton_Click(object sender, RoutedEventArgs e)
         {
@@ -143,28 +130,69 @@ namespace IMAP_Client
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
             string key = SearchTextBox.Text;
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                MessageBox.Show("No search key provided");
-            }
+
+            if (string.IsNullOrWhiteSpace(key)) MessageBox.Show("No search key provided");
             else
             {
-                CancelLoadingSource?.Cancel();
-                CancelLoadingSource = new();
-
-                //SearchQuery.
-
-                // занадто слоновий
-
-                var collection = SelectedFolder.AsQueryable().Where(x => x.ToString().Contains(key));
-                foreach (var item in collection)
-                    Messages.Add(item);
+                Messages.Clear();
+                Task.Run(() => ExecuteSearch(AggregateQueriesByTerm(key)));
             }
         }
 
         private void FiltersDropDown_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            SearchQuery query = Queries[QueriesComboBox.SelectedIndex];
+            Messages.Clear();
+            Task.Run(() => ExecuteSearch(query));
+        }
 
+        private static SearchQuery AggregateQueriesByTerm(string term)
+        {
+            SearchQuery[] queries = new[]
+            {
+                SearchQuery.BccContains(term),
+                SearchQuery.CcContains(term),
+                SearchQuery.ToContains(term),
+                SearchQuery.FromContains(term),
+                SearchQuery.BodyContains(term),
+                SearchQuery.SubjectContains(term),
+                SearchQuery.MessageContains(term),
+            };
+
+            SearchQuery result = queries[0];
+            foreach (SearchQuery query in queries)
+                result = result.Or(query);
+
+            return result;
+        }
+
+        private void ExecuteSearch(SearchQuery query)
+        {
+            CancelLoadingSource?.Cancel();
+            lock (Client)
+            {
+                CancelLoadingSource = new();
+
+                var collection = SelectedFolder.Search(query).Reverse().ToList();
+
+                if (collection.Count > 0)
+                {
+                    MimeMessage msg;
+                    foreach (var id in collection)
+                    {
+                        if (CancelLoadingToken.IsCancellationRequested)
+                        {
+                            this.Dispatcher.InvokeAsync(Messages.Clear);
+                            return;
+                        }
+
+                        msg = SelectedFolder.GetMessage(id);
+                        this.Dispatcher.BeginInvoke(() => Messages.Add(msg));
+                    }
+                }
+                else MessageBox.Show("No items found >.<", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            CancelLoadingSource = new();
         }
     }
 }
