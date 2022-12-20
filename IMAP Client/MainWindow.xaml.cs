@@ -139,5 +139,32 @@ namespace IMAP_Client
             SMTP_Client.MainWindow wnd = new(client, ConnectionCredentials.LoginCredentials.UserName);
             wnd.ShowDialog();
         }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            string key = SearchTextBox.Text;
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                MessageBox.Show("No search key provided");
+            }
+            else
+            {
+                CancelLoadingSource?.Cancel();
+                CancelLoadingSource = new();
+
+                //SearchQuery.
+
+                // занадто слоновий
+
+                var collection = SelectedFolder.AsQueryable().Where(x => x.ToString().Contains(key));
+                foreach (var item in collection)
+                    Messages.Add(item);
+            }
+        }
+
+        private void FiltersDropDown_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

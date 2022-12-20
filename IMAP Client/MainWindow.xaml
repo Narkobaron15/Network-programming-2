@@ -9,15 +9,22 @@
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
-            <ColumnDefinition/>
+            <ColumnDefinition />
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
             <RowDefinition/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <ListView Grid.Column="0" Name="FoldersBox" SelectionChanged="FoldersBox_SelectionChanged" Drop="FoldersBox_Drop"/>
-        <ListBox Grid.Column="1" Name="EmailBox" MouseDoubleClick="EmailBox_MouseDoubleClick">
+        <TextBox Name="SearchTextBox" Grid.Row="0" Grid.Column="1"/>
+        <Button Name="SearchButton" Grid.Row="0" Grid.Column="2" Content="Search" Click="SearchButton_Click"/>
+        <ComboBox HorizontalAlignment="Center" MinWidth="150" Name="FiltersDropDown" Grid.Row="0" Grid.Column="3" SelectedIndex="0" SelectionChanged="FiltersDropDown_SelectionChanged"/>
+
+        <ListView Grid.Column="0" Grid.Row="1" Name="FoldersBox" SelectionChanged="FoldersBox_SelectionChanged" Drop="FoldersBox_Drop"/>
+        <ListBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" Name="EmailBox" MouseDoubleClick="EmailBox_MouseDoubleClick">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -40,8 +47,6 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" DockPanel.Dock="Bottom">
-            <Button Name="WriteButton" Content="Write..." HorizontalAlignment="Right" Margin="20,8,20,0" Click="WriteButton_Click"/>
-        </StackPanel>
+        <Button Grid.Row="2" Grid.Column="4" Name="WriteButton" Content="Write..." HorizontalAlignment="Right" Margin="20,8,20,0" Click="WriteButton_Click"/>
     </Grid>
 </Window>
