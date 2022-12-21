@@ -36,10 +36,10 @@ namespace IMAP_Client
             set
             {
                 CancelLoadingSource?.Cancel();
-                _selectedfolder?.Close();
 
+                _selectedfolder?.Close();
                 _selectedfolder = value;
-                value.Open(FolderAccess.ReadWrite);
+                _selectedfolder.Open(FolderAccess.ReadWrite);
 
                 this.Dispatcher.InvokeAsync(Messages.Clear);
                 Task.Run(() => ExecuteSearch(SearchQuery.All));
@@ -170,7 +170,7 @@ namespace IMAP_Client
         private void ExecuteSearch(SearchQuery query)
         {
             CancelLoadingSource?.Cancel();
-            lock (Client)
+            lock (Client.Sync)
             {
                 CancelLoadingSource = new();
 
@@ -182,7 +182,7 @@ namespace IMAP_Client
                     foreach (var id in collection)
                     {
                         if (CancelLoadingToken.IsCancellationRequested)
-                            break;
+                            return;
 
                         msg = SelectedFolder.GetMessage(id);
                         this.Dispatcher.InvokeAsync(() => Messages.Add(msg));
