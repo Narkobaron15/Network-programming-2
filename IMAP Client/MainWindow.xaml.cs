@@ -35,12 +35,13 @@ namespace IMAP_Client
             get => _selectedfolder!;
             set
             {
-                _selectedfolder?.CloseAsync();
-                this.Dispatcher.Invoke(Messages.Clear);
+                CancelLoadingSource?.Cancel();
+                _selectedfolder?.Close();
 
                 _selectedfolder = value;
-
                 value.Open(FolderAccess.ReadWrite);
+
+                this.Dispatcher.InvokeAsync(Messages.Clear);
                 Task.Run(() => ExecuteSearch(SearchQuery.All));
             }
         }
@@ -181,13 +182,10 @@ namespace IMAP_Client
                     foreach (var id in collection)
                     {
                         if (CancelLoadingToken.IsCancellationRequested)
-                        {
-                            this.Dispatcher.InvokeAsync(Messages.Clear);
-                            return;
-                        }
+                            break;
 
                         msg = SelectedFolder.GetMessage(id);
-                        this.Dispatcher.BeginInvoke(() => Messages.Add(msg));
+                        this.Dispatcher.InvokeAsync(() => Messages.Add(msg));
                     }
                 }
                 else MessageBox.Show("No items found >.<", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
