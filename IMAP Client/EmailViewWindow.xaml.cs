@@ -18,7 +18,8 @@ namespace IMAP_Client
     {
         public MimeMessage Message { get; }
         private ConnectionCredentials Credentials { get; }
-        private static Regex EmailRegex => new(@"<.*>");
+        private static Regex NoBracketsEmailPattern => new(@".*@.*\..*");
+        private static Regex BracketsEmailPattern => new(@"<.*@.*\..*>");
 
         public EmailViewWindow(ConnectionCredentials Credentials, MimeMessage Message)
         {
@@ -103,10 +104,23 @@ namespace IMAP_Client
             }
         }
 
+        private static string GetRecipient(MimeMessage msg, string UName)
+        {
+            string rawfrom = msg.From.ToString(),
+                   rawto = msg.To.ToString();
+
+            string? from = BracketsEmailPattern.Matches(rawfrom).FirstOrDefault()?.Value[1..^1]
+                          ?? NoBracketsEmailPattern.Matches(rawfrom).First().Value,
+                    to = BracketsEmailPattern.Matches(rawto).FirstOrDefault()?.Value[1..^1]
+                          ?? NoBracketsEmailPattern.Matches(rawto).First().Value;
+
+            return from == UName ? to : from;
+        }
+
         private void RespondBtn_Click(object sender, RoutedEventArgs e)
         {
-            string recipient = EmailRegex.Matches(Message.From.ToString() + Message.To.ToString()).First().Value[1..^1],
-                   subject = Message.Subject.Trim().ToLower().StartsWith("re: ")
+            string recipient = GetRecipient(Message, Credentials.LoginCredentials.UserName),
+                   subject = Message.Subject.Trim().ToLower().StartsWith("re:")
                              ? Message.Subject
                              : "Re: " + Message.Subject;
 

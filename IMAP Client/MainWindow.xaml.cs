@@ -37,12 +37,16 @@ namespace IMAP_Client
             {
                 CancelLoadingSource?.Cancel();
 
-                _selectedfolder?.Close();
-                _selectedfolder = value;
-                _selectedfolder.Open(FolderAccess.ReadWrite);
+                Task.Run(async () =>
+                {
+                    await Task.Delay(1000);
+                    _selectedfolder?.Close();
+                    _selectedfolder = value;
+                    _selectedfolder.Open(FolderAccess.ReadWrite);
 
-                this.Dispatcher.InvokeAsync(Messages.Clear);
-                Task.Run(() => ExecuteSearch(SearchQuery.All));
+                    await this.Dispatcher.InvokeAsync(Messages.Clear);
+                    ExecuteSearch(SearchQuery.All);
+                });
             }
         }
 
@@ -56,7 +60,7 @@ namespace IMAP_Client
                 _cancelloadingsource = value;
             }
         }
-        private CancellationToken CancelLoadingToken => (CancelLoadingSource?.Token)!.Value;
+        private CancellationToken CancelLoadingToken => CancelLoadingSource?.Token ?? default;
 
         private readonly SearchQuery[] Queries;
 
@@ -140,7 +144,7 @@ namespace IMAP_Client
             }
         }
 
-        private void FiltersDropDown_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void QueriesComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SearchQuery query = Queries[QueriesComboBox.SelectedIndex];
             Messages.Clear();
@@ -170,8 +174,11 @@ namespace IMAP_Client
         private void ExecuteSearch(SearchQuery query)
         {
             CancelLoadingSource?.Cancel();
-            lock (Client.Sync)
+
+            lock (Client.SyncRoot)
             {
+                if (SelectedFolder is null) return;
+
                 CancelLoadingSource = new();
 
                 var collection = SelectedFolder.Search(query).Reverse().ToList();
@@ -190,6 +197,7 @@ namespace IMAP_Client
                 }
                 else MessageBox.Show("No items found >.<", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+
             CancelLoadingSource = new();
         }
     }
